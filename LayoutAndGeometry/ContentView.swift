@@ -5,37 +5,46 @@
 //  Created by Gary Watson on 11/08/2020.
 //  Copyright © 2020 Gary Watson. All rights reserved.
 //
+// How to create a custom alignment guide
 
 import SwiftUI
 
-extension VerticalAlignment {
-    enum MidAccountAndName: AlignmentID {
-        static func defaultValue(in d: ViewDimensions) -> CGFloat {
-            d[.top]
+struct OuterView: View {
+    var body: some View {
+        VStack {
+            Text("Top")
+            InnerView()
+                .background(Color.green)
+            Text("Bottom")
         }
     }
-    static let midAccountAndName = VerticalAlignment(MidAccountAndName.self)
+}
+
+struct InnerView: View {
+    var body: some View {
+        HStack {
+            Text("Left")
+            GeometryReader { geo in
+                Text("Center")
+                    .background(Color.blue)
+                    .onTapGesture {
+                        print("Global center: \(geo.frame(in: .global).midX) x \(geo.frame(in: .global).midY)")
+                        print("Custom center: \(geo.frame(in: .named("Custom")).midX) x \(geo.frame(in: .named("Custom")).midY)")
+                        print("Local center: \(geo.frame(in: .local).midX) x \(geo.frame(in: .local).midY)")
+                }
+            }
+            .background(Color.orange)
+            Text("Right")
+        }
+    }
 }
 
 struct ContentView: View {
     var body: some View {
-        HStack(alignment: .midAccountAndName) {
-            VStack {
-                Text("@twostraws")
-                    .alignmentGuide(.midAccountAndName) { d in d[VerticalAlignment.center]
-                }
-                Image("snowbird")
-                .resizable()
-                    .frame(width: 64, height: 64)
-            }
-            VStack {
-                Text("More Text")
-                Text("Full name:")
-                Text("PAUL HUDSON")
-                    .alignmentGuide(.midAccountAndName) { d in d[VerticalAlignment.center] }                                     .font(.largeTitle)
-            }
-        }
-    }
+        OuterView()
+            .background(Color.red)
+        .coordinateSpace(name: "Custom")
+     }
 }
 
 struct ContentView_Previews: PreviewProvider {
